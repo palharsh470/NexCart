@@ -1,0 +1,41 @@
+/* ═══════════════════════════════════════════════
+   ProfilePage.module.css
+═══════════════════════════════════════════════ */
+
+.root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #fcfdfc;
+  font-family: 'Inter', sans-serif;
+}
+
+.main {
+  flex: 1;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px 32px 80px;
+  display: flex;
+  flex-direction: column;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 36px;
+  align-items: start;
+}
+
+
+.contentArea {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}

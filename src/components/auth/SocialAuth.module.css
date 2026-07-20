@@ -1,0 +1,56 @@
+/* ═══════════════════════════════════════════════
+   SocialAuth.module.css
+═══════════════════════════════════════════════ */
+
+.socialRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.btnSocial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 46px;
+  background: #fff;
+  border: 1.5px solid #dde7e4;
+  border-radius: 9999px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #171d1b;
+  cursor: pointer;
+  transition: background 200ms, border-color 200ms, transform 200ms, box-shadow 200ms;
+}
+.btnSocial:hover {
+  background: #f5fbf8;
+  border-color: #bcc9c5;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.07);
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.dividerLine {
+  flex: 1;
+  height: 1px;
+  background: #e2eae7;
+}
+.dividerText {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #9eaaa7;
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  .socialRow { grid-template-columns: 1fr; }
+}

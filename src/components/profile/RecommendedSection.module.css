@@ -1,0 +1,117 @@
+/* ═══════════════════════════════════════════════
+   RecommendedSection.module.css
+═══════════════════════════════════════════════ */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.title {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: #171d1b;
+  letter-spacing: -0.02em;
+}
+
+.cardsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.promoCard {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1.5px solid #eaefec;
+  overflow: hidden;
+  display: flex;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  transition: transform 200ms, box-shadow 200ms;
+}
+
+.promoCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 64, 50, 0.06);
+}
+
+.imgWrap {
+  width: 180px;
+  background: #f7faf8;
+  flex-shrink: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cardContent {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 8px;
+}
+
+.badge {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+.badgeNew {
+  background: #00685c;
+  color: #ffffff;
+}
+.badgeSmart {
+  background: #d4e5ec;
+  color: #3a494f;
+}
+
+.cardTitle {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: #171d1b;
+}
+
+.cardDesc {
+  font-size: 0.875rem;
+  color: #6d7a76;
+  line-height: 1.5;
+}
+
+.shopLink {
+  margin-top: 8px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #00685c;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: gap 150ms;
+}
+.shopLink:hover {
+  gap: 10px;
+}
+
+@media (max-width: 860px) {
+  .cardsGrid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 520px) {
+  .promoCard { flex-direction: column; }
+  .imgWrap { width: 100%; height: 180px; }
+}

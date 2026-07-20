@@ -1,0 +1,241 @@
+/* ═══════════════════════════════════════════════
+   SignInPage.module.css — matches provided design
+═══════════════════════════════════════════════ */
+
+.root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f0f7f5;
+  font-family: 'Inter', sans-serif;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 16px;
+}
+
+/* ── Card ─────────────────────────────────── */
+.card {
+  width: 100%;
+  max-width: 440px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 2px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+}
+.cardInner {
+  padding: 40px 40px 36px;
+}
+
+.cardTitle {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  font-size: 1.625rem;
+  letter-spacing: -0.02em;
+  color: #171d1b;
+  text-align: center;
+  margin-bottom: 10px;
+}
+.cardSub {
+  font-size: 0.9375rem;
+  color: #6d7a76;
+  text-align: center;
+  line-height: 1.55;
+  margin-bottom: 28px;
+}
+
+/* Social */
+.socialRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.btnSocial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 46px;
+  background: #fff;
+  border: 1.5px solid #dde7e4;
+  border-radius: 9999px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #171d1b;
+  cursor: pointer;
+  transition: background 200ms, border-color 200ms, transform 200ms, box-shadow 200ms;
+}
+.btnSocial:hover {
+  background: #f5fbf8;
+  border-color: #bcc9c5;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.07);
+}
+
+/* Divider */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.dividerLine {
+  flex: 1;
+  height: 1px;
+  background: #e2eae7;
+}
+.dividerText {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #9eaaa7;
+  white-space: nowrap;
+}
+
+/* Form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.labelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.fieldLabel {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #3d4946;
+  text-transform: uppercase;
+}
+.fieldInput {
+  height: 46px;
+  padding: 0 14px;
+  border: 1.5px solid #dde7e4;
+  border-radius: 10px;
+  background: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9375rem;
+  color: #171d1b;
+  outline: none;
+  width: 100%;
+  transition: border-color 150ms, box-shadow 150ms;
+}
+.fieldInput::placeholder { color: #b0bcb8; }
+.fieldInput:focus {
+  border-color: #00685c;
+  box-shadow: 0 0 0 3px rgba(0,104,92,0.12);
+}
+.fieldInputError {
+  border-color: #ba1a1a !important;
+  box-shadow: 0 0 0 3px rgba(186,26,26,0.1) !important;
+}
+.fieldError {
+  font-size: 0.75rem;
+  color: #ba1a1a;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Password wrapper */
+.pwdWrap {
+  position: relative;
+}
+.pwdWrap .fieldInput {
+  padding-right: 44px;
+}
+.eyeBtn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #9eaaa7;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  cursor: pointer;
+  transition: color 150ms;
+  border-radius: 4px;
+}
+.eyeBtn:hover { color: #00685c; }
+
+/* Forgot */
+.forgotLink {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #00685c;
+  text-decoration: none;
+}
+.forgotLink:hover { text-decoration: underline; }
+
+/* Submit */
+.btnAuthorize {
+  margin-top: 4px;
+  width: 100%;
+  height: 50px;
+  background: #00685c;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: background 250ms, transform 200ms, box-shadow 200ms;
+}
+.btnAuthorize:hover:not(:disabled) {
+  background: #005047;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0,104,92,0.3);
+}
+.btnAuthorize:active:not(:disabled) { transform: none; box-shadow: none; }
+.btnAuthorize:disabled { opacity: 0.65; cursor: not-allowed; }
+
+/* Spinner */
+.spinner {
+  display: inline-block;
+  width: 17px;
+  height: 17px;
+  border: 2.5px solid rgba(255,255,255,0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.65s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Switch link */
+.switchText {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 0.9375rem;
+  color: #6d7a76;
+}
+.switchLink {
+  color: #00685c;
+  font-weight: 700;
+  text-decoration: none;
+}
+.switchLink:hover { text-decoration: underline; }
+
+@media (max-width: 560px) {
+  .cardInner { padding: 28px 20px 24px; }
+  .socialRow { grid-template-columns: 1fr; }
+}

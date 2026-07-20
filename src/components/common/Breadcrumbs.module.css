@@ -1,0 +1,26 @@
+/* ═══════════════════════════════════════════════
+   Breadcrumbs.module.css
+═══════════════════════════════════════════════ */
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  font-size: 0.8125rem;
+}
+.crumb {
+  color: #6d7a76;
+  font-weight: 500;
+  text-decoration: none;
+}
+.crumb:hover {
+  color: #00685c;
+}
+.crumbActive {
+  color: #171d1b;
+  font-weight: 600;
+}
+.separator {
+  color: #bcc9c5;
+}

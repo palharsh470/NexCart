@@ -1,0 +1,51 @@
+/* ═══════════════════════════════════════════════
+   QuantitySelector.module.css
+═══════════════════════════════════════════════ */
+
+.quantitySelect {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #dde7e4;
+  border-radius: 9999px;
+  height: 38px;
+  padding: 0 4px;
+  background: #ffffff;
+}
+.quantitySelectLarge {
+  height: 48px;
+  padding: 0 6px;
+}
+
+.qtyBtn {
+  width: 28px;
+  height: 28px;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #6d7a76;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: color 150ms;
+}
+.qtyBtn:hover {
+  color: #00685c;
+}
+.quantitySelectLarge .qtyBtn {
+  width: 36px;
+  height: 36px;
+  font-size: 1.125rem;
+}
+
+.qtyVal {
+  width: 28px;
+  text-align: center;
+  font-weight: 700;
+  color: #171d1b;
+  font-size: 0.875rem;
+}
+.quantitySelectLarge .qtyVal {
+  width: 32px;
+  font-size: 0.9375rem;
+}

@@ -1,0 +1,108 @@
+/* ═══════════════════════════════════════════════
+   CartItemCard.module.css
+═══════════════════════════════════════════════ */
+
+.cartCard {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1.5px solid #eaefec;
+  padding: 24px;
+  display: flex;
+  gap: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+}
+
+.cardImageWrap {
+  width: 120px;
+  height: 120px;
+  background: #f7faf8;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.headphonesImg {
+  width: 80%;
+  height: 80%;
+  object-fit: contain;
+}
+.defaultImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cardDetails {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.cardTitle {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  font-size: 1.125rem;
+  color: #171d1b;
+  line-height: 1.3;
+}
+.deleteBtn {
+  background: none;
+  border: none;
+  color: #9eaaa7;
+  cursor: pointer;
+  padding: 4px;
+  display: grid;
+  place-items: center;
+  transition: color 150ms;
+}
+.deleteBtn:hover {
+  color: #ba1a1a;
+}
+
+.cardVariant {
+  font-size: 0.8125rem;
+  color: #6d7a76;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+}
+
+.priceColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.originalPrice {
+  font-size: 0.8125rem;
+  color: #9eaaa7;
+  text-decoration: line-through;
+  font-weight: 600;
+}
+.currentPrice {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  font-size: 1.0625rem;
+  color: #00685c;
+}
+
+@media (max-width: 600px) {
+  .cartCard { flex-direction: column; gap: 16px; }
+  .cardImageWrap { width: 100%; height: 160px; }
+  .headphonesImg, .defaultImg { object-fit: contain; }
+  .cardFooter { align-items: flex-end; }
+}

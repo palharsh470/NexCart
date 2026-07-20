@@ -1,0 +1,59 @@
+/* ═══════════════════════════════════════════════
+   ProfileStats.module.css
+═══════════════════════════════════════════════ */
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.statCard {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1.5px solid #eaefec;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+  transition: transform 150ms, box-shadow 150ms;
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 64, 50, 0.06);
+}
+
+.iconWrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #f0f7f5;
+  color: #00685c;
+  display: grid;
+  place-items: center;
+  margin-bottom: 16px;
+}
+
+.statLabel {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #6d7a76;
+  margin-bottom: 4px;
+}
+
+.statValue {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  font-size: 1.625rem;
+  color: #171d1b;
+  letter-spacing: -0.02em;
+}
+
+@media (max-width: 990px) {
+  .statsGrid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 520px) {
+  .statsGrid { grid-template-columns: 1fr; }
+}

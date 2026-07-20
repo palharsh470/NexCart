@@ -1,0 +1,166 @@
+/* ═══════════════════════════════════════════════
+   HeroBanner.module.css
+═══════════════════════════════════════════════ */
+
+.heroSection {
+  width: 100%;
+}
+.heroContainer {
+  background: linear-gradient(135deg, #004d40 0%, #002d24 100%);
+  border-radius: 24px;
+  padding: 56px 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 77, 64, 0.15);
+}
+
+.heroLeft {
+  flex: 1.2;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  z-index: 2;
+}
+
+.bestSellerBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(131, 246, 226, 0.15);
+  border: 1px solid rgba(131, 246, 226, 0.35);
+  color: #83f6e2;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.heroTitle {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  font-size: 2.875rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.heroDesc {
+  font-size: 1.0625rem;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.6;
+  max-width: 440px;
+}
+
+.heroCtaGroup {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  margin-top: 12px;
+}
+
+.btnShopNow {
+  height: 50px;
+  padding: 0 28px;
+  background: #83f6e2;
+  color: #002d24;
+  border: none;
+  border-radius: 9999px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 200ms, box-shadow 200ms, background 200ms;
+}
+.btnShopNow:hover {
+  background: #65d9c6;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(131, 246, 226, 0.4);
+}
+
+.heroPriceWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.startingAt {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.5);
+}
+.heroPrice {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: #ffffff;
+}
+
+.heroSliderDots {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+.sliderDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  transition: width 200ms, background 200ms;
+}
+.sliderDotActive {
+  width: 24px;
+  border-radius: 4px;
+  background: #83f6e2;
+}
+
+.heroRight {
+  flex: 0.9;
+  display: flex;
+  justify-content: flex-end;
+  z-index: 2;
+}
+.yellowCard {
+  background: #ffd500;
+  border-radius: 20px;
+  width: 340px;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+.heroImage {
+  width: 85%;
+  height: 85%;
+  object-fit: contain;
+  transition: transform 300ms ease;
+}
+.yellowCard:hover .heroImage {
+  transform: scale(1.05);
+}
+
+@media (max-width: 1024px) {
+  .heroContainer { padding: 40px; }
+  .heroTitle { font-size: 2.25rem; }
+  .yellowCard { width: 280px; height: 250px; }
+}
+
+@media (max-width: 860px) {
+  .heroContainer { flex-direction: column; padding: 40px 32px; text-align: center; }
+  .heroLeft { align-items: center; }
+  .heroDesc { max-width: 100%; }
+  .heroRight { justify-content: center; width: 100%; }
+  .yellowCard { width: 100%; max-width: 360px; height: 260px; }
+}

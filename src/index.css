@@ -1,0 +1,96 @@
+/* ═══════════════════════════════════════════════
+   NexCart Design System – Global Styles
+   Based on DESIGN.md: Premium Marketplace System
+═══════════════════════════════════════════════ */
+
+/* ── CSS Variables (Design Tokens) ─────────── */
+:root {
+  /* Colors */
+  --color-primary:             #00685c;
+  --color-primary-container:   #008375;
+  --color-on-primary:          #ffffff;
+  --color-on-primary-container:#f4fffb;
+  --color-inverse-primary:     #65d9c6;
+  --color-primary-fixed:       #83f6e2;
+  --color-primary-fixed-dim:   #65d9c6;
+
+  --color-secondary:            #516167;
+  --color-on-secondary:         #ffffff;
+  --color-secondary-container:  #d4e5ec;
+  --color-on-secondary-container:#57676d;
+
+  --color-tertiary:            #95442b;
+  --color-on-tertiary:         #ffffff;
+  --color-tertiary-container:  #b35c40;
+
+  --color-error:               #ba1a1a;
+  --color-on-error:            #ffffff;
+  --color-error-container:     #ffdad6;
+  --color-on-error-container:  #93000a;
+
+  --color-surface:             #f5fbf8;
+  --color-surface-dim:         #d6dbd9;
+  --color-surface-bright:      #f5fbf8;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low:    #eff5f2;
+  --color-surface-container:        #eaefec;
+  --color-surface-container-high:   #e4e9e7;
+  --color-surface-container-highest:#dee4e1;
+  --color-on-surface:          #171d1b;
+  --color-on-surface-variant:  #3d4946;
+  --color-inverse-surface:     #2c3230;
+  --color-inverse-on-surface:  #ecf2ef;
+  --color-outline:             #6d7a76;
+  --color-outline-variant:     #bcc9c5;
+  --color-surface-tint:        #006b5e;
+  --color-background:          #f5fbf8;
+  --color-on-background:       #171d1b;
+  --color-surface-variant:     #dee4e1;
+
+  /* Typography */
+  --font-display: 'Manrope', sans-serif;
+  --font-body:    'Inter', sans-serif;
+
+  /* Spacing (4px base) */
+  --space-xs:   4px;
+  --space-sm:   8px;
+  --space-md:   16px;
+  --space-lg:   24px;
+  --space-xl:   48px;
+  --space-2xl:  80px;
+
+  /* Border Radius */
+  --radius-sm:   0.25rem;
+  --radius-md:   0.5rem;
+  --radius-lg:   0.75rem;
+  --radius-xl:   1.25rem; /* ~20px — card/container radius */
+  --radius-full: 9999px;  /* pill — buttons & badges */
+  --radius-input: 0.5rem; /* 8px — inputs */
+
+  /* Shadows */
+  --shadow-card:    0 2px 20px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+  --shadow-overlay: 0 8px 40px rgba(0, 0, 0, 0.14), 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-hover:   0 8px 28px rgba(0, 0, 0, 0.13), 0 2px 8px rgba(0, 0, 0, 0.07);
+
+  /* Transitions */
+  --transition-fast:   150ms ease;
+  --transition-normal: 300ms ease;
+}
+
+/* ── Reset & Base ───────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-background);
+  color: var(--color-on-background);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
+button { cursor: pointer; font-family: inherit; }
+input, select, textarea { font-family: inherit; }
