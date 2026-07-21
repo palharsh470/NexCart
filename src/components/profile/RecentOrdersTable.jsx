@@ -1,38 +1,36 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import styles from './RecentOrdersTable.module.css'
+import { apiGetOrdersHistory, apiCancelOrder } from '../../api'
 
 export function RecentOrdersTable() {
-  const orders = [
-    {
-      id: '#NC-84920',
-      date: 'Oct 12, 2023',
-      total: '$249.00',
-      status: 'DELIVERED',
-      type: 'delivered',
-    },
-    {
-      id: '#NC-84711',
-      date: 'Oct 08, 2023',
-      total: '$1,299.00',
-      status: 'SHIPPED',
-      type: 'shipped',
-    },
-    {
-      id: '#NC-84605',
-      date: 'Oct 05, 2023',
-      total: '$89.50',
-      status: 'PROCESSING',
-      type: 'processing',
-    },
-    {
-      id: '#NC-84422',
-      date: 'Sep 28, 2023',
-      total: '$540.00',
-      status: 'DELIVERED',
-      type: 'delivered',
-    },
-  ]
+  const [orders, setOrders] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  const loadOrders = () => {
+    setLoading(true)
+    apiGetOrdersHistory()
+      .then((data) => {
+        setOrders(data)
+      })
+      .catch((err) => {
+        console.warn('Could not load order history:', err)
+      })
+      .finally(() => setLoading(false))
+  }
+
+  useEffect(() => {
+    loadOrders()
+  }, [])
+
+  const handleCancel = async (orderId) => {
+    try {
+      await apiCancelOrder(orderId)
+      loadOrders()
+    } catch (err) {
+      alert(err.message || 'Could not cancel order')
+    }
+  }
 
   const getStatusClass = (type) => {
     switch (type) {
@@ -40,15 +38,16 @@ export function RecentOrdersTable() {
         return styles.statusDelivered
       case 'shipped':
         return styles.statusShipped
-      case 'processing':
+      case 'cancelled':
         return styles.statusProcessing
+      case 'processing':
       default:
-        return styles.statusDelivered
+        return styles.statusProcessing
     }
   }
 
   return (
-    <div className={styles.card}>
+    <div className={styles.card} id="recent-orders-section">
       <div className={styles.headerRow}>
         <h2 className={styles.title}>Recent Orders</h2>
         <Link to="#" className={styles.viewAllLink}>
@@ -57,35 +56,63 @@ export function RecentOrdersTable() {
       </div>
 
       <div className={styles.tableWrapper}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>ORDER ID</th>
-              <th>DATE</th>
-              <th>TOTAL</th>
-              <th>STATUS</th>
-              <th>ACTION</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((order) => (
-              <tr key={order.id}>
-                <td className={styles.orderId}>{order.id}</td>
-                <td className={styles.date}>{order.date}</td>
-                <td className={styles.total}>{order.total}</td>
-                <td>
-                  <span className={`${styles.statusBadge} ${getStatusClass(order.type)}`}>
-                    <span className={styles.dot} /> {order.status}
-                  </span>
-                </td>
-                <td>
-                  <Link to="#" className={styles.detailsLink}>Details</Link>
-                </td>
+        {loading ? (
+          <div style={{ padding: '24px', textAlign: 'center', color: '#6d7a76' }}>
+            Loading recent orders…
+          </div>
+        ) : orders.length === 0 ? (
+          <div style={{ padding: '24px', textAlign: 'center', color: '#6d7a76' }}>
+            No recent orders found.
+          </div>
+        ) : (
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>ORDER ID</th>
+                <th>DATE</th>
+                <th>TOTAL</th>
+                <th>STATUS</th>
+                <th>ACTION</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {orders.map((order) => (
+                <tr key={order.id}>
+                  <td className={styles.orderId}>{order.orderCode}</td>
+                  <td className={styles.date}>{order.date}</td>
+                  <td className={styles.total}>{order.total}</td>
+                  <td>
+                    <span className={`${styles.statusBadge} ${getStatusClass(order.type)}`}>
+                      <span className={styles.dot} /> {order.status}
+                    </span>
+                  </td>
+                  <td>
+                    {order.status === 'PROCESSING' ? (
+                      <button
+                        type="button"
+                        onClick={() => handleCancel(order.id)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#ba1a1a',
+                          fontWeight: 600,
+                          fontSize: '0.8125rem',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    ) : (
+                      <span className={styles.detailsLink}>Details</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   )
 }
+

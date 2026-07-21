@@ -1,12 +1,31 @@
 import React, { useState } from 'react'
 import styles from './OrderSummary.module.css'
 import { IconCart, IconCheck } from '../Icons'
+import { apiApplyCoupon } from '../../api'
 
-export function OrderSummary({ subtotal, tax, isCartEmpty }) {
-  const [promoCode, setPromoCode] = useState('SUMMER25')
-  const [promoApplied, setPromoApplied] = useState(true)
+export function OrderSummary({ subtotal, tax, isCartEmpty, onCheckout, isCheckingOut }) {
+  const [promoCode, setPromoCode] = useState('')
+  const [promoDiscount, setPromoDiscount] = useState(0)
+  const [promoMsg, setPromoMsg] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const discount = promoApplied && subtotal > 0 ? 25.00 : 0
+  const handleApplyCoupon = async () => {
+    if (!promoCode.trim()) return
+    setLoading(true)
+    setPromoMsg('')
+    try {
+      const res = await apiApplyCoupon(promoCode.trim())
+      setPromoDiscount(25.00) // Default discount value
+      setPromoMsg(res.message || `Coupon ${res.coupon || promoCode} applied successfully!`)
+    } catch (err) {
+      setPromoDiscount(0)
+      setPromoMsg(err.message || 'Invalid coupon code.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const discount = subtotal > 0 ? promoDiscount : 0
   const grandTotal = Math.max(0, subtotal + tax - discount)
 
   return (
@@ -43,18 +62,21 @@ export function OrderSummary({ subtotal, tax, isCartEmpty }) {
             value={promoCode}
             onChange={(e) => setPromoCode(e.target.value)}
             className={styles.promoInput}
-            placeholder="Enter code"
+            placeholder="Enter coupon code"
           />
           <button
             type="button"
             className={styles.btnPromoApply}
-            onClick={() => setPromoApplied(true)}
+            onClick={handleApplyCoupon}
+            disabled={loading}
           >
-            Apply
+            {loading ? 'Applying…' : 'Apply'}
           </button>
         </div>
-        {promoApplied && subtotal > 0 && (
-          <p className={styles.promoSuccessText}>Code SUMMER25 applied ($25 off)</p>
+        {promoMsg && (
+          <p className={styles.promoSuccessText} style={{ color: promoDiscount > 0 ? '#00685c' : '#ba1a1a' }}>
+            {promoMsg}
+          </p>
         )}
       </div>
 
@@ -68,8 +90,13 @@ export function OrderSummary({ subtotal, tax, isCartEmpty }) {
       </div>
 
       {/* Checkout CTA */}
-      <button type="button" className={styles.btnCheckout} disabled={isCartEmpty}>
-        Proceed to Checkout <IconCart />
+      <button
+        type="button"
+        className={styles.btnCheckout}
+        disabled={isCartEmpty || isCheckingOut}
+        onClick={onCheckout}
+      >
+        {isCheckingOut ? 'Placing Order…' : 'Proceed to Checkout'} <IconCart />
       </button>
 
       {/* Assurances */}

@@ -2,6 +2,19 @@
    SocialAuth.module.css
 ═══════════════════════════════════════════════ */
 
+.toast {
+  background: #171d1b;
+  color: #83f6e2;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-align: center;
+  padding: 10px 16px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  animation: slideIn 300ms ease;
+}
+@keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+
 .socialRow {
   display: grid;
   grid-template-columns: 1fr 1fr;

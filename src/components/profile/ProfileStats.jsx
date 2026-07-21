@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import styles from './ProfileStats.module.css'
+import { apiGetOrdersHistory, apiGetWishlist } from '../../api'
 
 const IconPackage = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -27,11 +28,41 @@ const IconTruck = () => (
 )
 
 export function ProfileStats() {
+  const [ordersCount, setOrdersCount] = useState(0)
+  const [wishlistCount, setWishlistCount] = useState(0)
+  const [activeShipments, setActiveShipments] = useState(0)
+
+  useEffect(() => {
+    let isMounted = true
+    apiGetOrdersHistory()
+      .then((orders) => {
+        if (!isMounted) return
+        setOrdersCount(orders.length)
+        const active = orders.filter(
+          (o) => o.status === 'SHIPPED' || o.status === 'PROCESSING'
+        ).length
+        setActiveShipments(active)
+      })
+      .catch(() => {})
+
+    apiGetWishlist()
+      .then((items) => {
+        if (isMounted) setWishlistCount(items.length)
+      })
+      .catch(() => {})
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  const rewardPoints = (ordersCount * 150).toLocaleString()
+
   const stats = [
-    { label: 'Total Orders', value: '24', icon: <IconPackage /> },
-    { label: 'Wishlist Items', value: '18', icon: <IconHeart /> },
-    { label: 'Reward Points', value: '1,450', icon: <IconStar /> },
-    { label: 'Active Shipments', value: '02', icon: <IconTruck /> },
+    { label: 'Total Orders', value: String(ordersCount).padStart(2, '0'), icon: <IconPackage /> },
+    { label: 'Wishlist Items', value: String(wishlistCount).padStart(2, '0'), icon: <IconHeart /> },
+    { label: 'Reward Points', value: rewardPoints, icon: <IconStar /> },
+    { label: 'Active Shipments', value: String(activeShipments).padStart(2, '0'), icon: <IconTruck /> },
   ]
 
   return (
@@ -46,3 +77,4 @@ export function ProfileStats() {
     </div>
   )
 }
+

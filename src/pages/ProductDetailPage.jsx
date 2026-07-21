@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import styles from './ProductDetailPage.module.css'
 import { Navbar, Footer } from '../components/Layout'
 import { Breadcrumbs } from '../components/common/Breadcrumbs'
@@ -6,65 +7,190 @@ import { StarRating } from '../components/common/StarRating'
 import { QuantitySelector } from '../components/common/QuantitySelector'
 import { ProductCard } from '../components/common/ProductCard'
 import { IconSearchZoom, IconTruck, IconShield, IconCart } from '../components/Icons'
+import { apiGetProductDetail, apiGetRelatedProducts, apiGetFeaturedProducts, apiAddCartItem, apiGetCart } from '../api'
+import { useAuth } from '../AuthContext'
 
 export default function ProductDetailPage() {
-  const [selectedColor, setSelectedColor] = useState('midnight')
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const { isAuthenticated } = useAuth()
+  const [product, setProduct] = useState(null)
+  const [relatedProducts, setRelatedProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  const [selectedColor, setSelectedColor] = useState('standard')
   const [selectedSize, setSelectedSize] = useState('standard')
   const [quantity, setQuantity] = useState(1)
   const [activeTab, setActiveTab] = useState('description')
+  const [activeImg, setActiveImg] = useState('')
+  const [addingToCart, setAddingToCart] = useState(false)
+  const [cartMsg, setCartMsg] = useState('')
+  const [isInCart, setIsInCart] = useState(false)
+
+  useEffect(() => {
+    let isMounted = true
+    setLoading(true)
+    setError(null)
+    setIsInCart(false)
+
+    // Fetch product details
+    apiGetProductDetail(id)
+      .then((data) => {
+        if (isMounted) {
+          setProduct(data)
+          setActiveImg(data.image)
+        }
+      })
+      .catch((err) => {
+        if (isMounted) {
+          console.error('Error fetching product detail:', err)
+          setError('Could not load product details.')
+        }
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false)
+      })
+
+    // Check if item is already in user's cart
+    apiGetCart()
+      .then((cartItems) => {
+        if (!isMounted || !Array.isArray(cartItems)) return
+        const exists = cartItems.some(
+          (item) => Number(item.productId) === Number(id) || Number(item.id) === Number(id)
+        )
+        if (exists) setIsInCart(true)
+      })
+      .catch(() => {})
+
+    // Fetch related products
+    apiGetRelatedProducts(id)
+      .then((relData) => {
+        if (!isMounted) return
+        if (relData && relData.length > 0) {
+          setRelatedProducts(relData)
+        } else {
+          // Fallback to featured products if related products array is empty
+          apiGetFeaturedProducts()
+            .then((featData) => {
+              if (isMounted) {
+                setRelatedProducts(featData.filter((item) => item.id !== Number(id)))
+              }
+            })
+            .catch(() => {})
+        }
+      })
+      .catch(() => {
+        if (!isMounted) return
+        apiGetFeaturedProducts()
+          .then((featData) => {
+            if (isMounted) {
+              setRelatedProducts(featData.filter((item) => item.id !== Number(id)))
+            }
+          })
+          .catch(() => {})
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [id])
+
+  const handleAddToCart = async () => {
+    if (!product) return
+    if (!isAuthenticated) {
+      navigate('/sign-in')
+      return
+    }
+    if (isInCart) {
+      navigate('/cart')
+      return
+    }
+    setAddingToCart(true)
+    setCartMsg('')
+    try {
+      await apiAddCartItem(product.id, quantity)
+      setIsInCart(true)
+      setCartMsg('Added to cart successfully!')
+      setTimeout(() => setCartMsg(''), 3000)
+    } catch (err) {
+      if (err.message.includes('sign in') || err.message === 'Unauthenticated') {
+        navigate('/sign-in')
+      } else {
+        setCartMsg(err.message || 'Could not add item to cart.')
+      }
+    } finally {
+      setAddingToCart(false)
+    }
+  }
+
+  const handleBuyNow = async () => {
+    if (!product) return
+    if (!isAuthenticated) {
+      navigate('/sign-in')
+      return
+    }
+    setAddingToCart(true)
+    try {
+      await apiAddCartItem(product.id, quantity)
+      navigate('/cart')
+    } catch (err) {
+      if (err.message.includes('sign in') || err.message === 'Unauthenticated') {
+        navigate('/sign-in')
+      } else {
+        setCartMsg(err.message || 'Could not add item to cart.')
+      }
+    } finally {
+      setAddingToCart(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className={styles.root}>
+        <Navbar activeLink="Shop" cartCount={3} />
+        <main className={styles.main} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+          <p style={{ color: '#6d7a76', fontSize: '1.125rem' }}>Loading product details…</p>
+        </main>
+        <Footer />
+      </div>
+    )
+  }
+
+  if (error || !product) {
+    return (
+      <div className={styles.root}>
+        <Navbar activeLink="Shop" cartCount={3} />
+        <main className={styles.main} style={{ padding: '60px 20px', textAlign: 'center' }}>
+          <h1 style={{ fontSize: '1.75rem', marginBottom: '16px', color: '#171d1b' }}>Product Not Found</h1>
+          <p style={{ color: '#6d7a76', marginBottom: '24px' }}>
+            {error || "The product you're looking for doesn't exist or has been removed."}
+          </p>
+          <Link to="/shop" style={{ display: 'inline-block', padding: '12px 24px', background: '#00685c', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 600 }}>
+            Back to Shop
+          </Link>
+        </main>
+        <Footer />
+      </div>
+    )
+  }
 
   const images = [
-    '/assets/headphones_hero.png',
-    'https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=600&q=80',
-    'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?auto=format&fit=crop&w=600&q=80',
-    'https://images.unsplash.com/photo-1484704849700-f032a568e944?auto=format&fit=crop&w=600&q=80',
-  ]
-
-  const [activeImg, setActiveImg] = useState(images[0])
-
-  const relatedProducts = [
-    {
-      id: 6,
-      name: 'SonicBuds Pro 2',
-      brand: 'True Wireless Audio',
-      price: 129.00,
-      originalPrice: 159.00,
-      image: '/assets/aura_buds.png',
-    },
-    {
-      id: 2,
-      name: 'NexaType Mechanical',
-      brand: 'Peripherals',
-      price: 189.00,
-      image: '/assets/mechanical_keyboard.png',
-    },
-    {
-      id: 3,
-      name: 'EchoHome Hub',
-      brand: 'Smart Living',
-      price: 99.00,
-      image: '/assets/omni_sound_speaker.png',
-    },
-    {
-      id: 5,
-      name: 'NexView 4K Ultra',
-      brand: 'Monitors',
-      price: 449.00,
-      originalPrice: 529.00,
-      image: '/assets/nexabook_laptop.png',
-    },
-  ]
+    product.image,
+    '/assets/product_placeholder.svg',
+  ].filter(Boolean)
 
   return (
     <div className={styles.root}>
-      <Navbar activeLink="Shop" cartCount={3} />
+      <Navbar activeLink="Shop" />
 
       <main className={styles.main}>
         <Breadcrumbs
           items={[
             { label: 'Home', path: '/' },
-            { label: 'Electronics', path: '/shop' },
-            { label: 'Audio', path: '/shop' },
+            { label: 'Shop', path: '/shop' },
+            { label: product.category, path: '/shop' },
+            { label: product.name, path: `/product/${product.id}` },
           ]}
         />
 
@@ -72,7 +198,7 @@ export default function ProductDetailPage() {
         <section className={styles.productTopSection}>
           <div className={styles.imagesArea}>
             <div className={styles.mainImageWrap}>
-              <img src={activeImg} alt="Aura ANC Wireless Headphones" className={styles.mainImage} />
+              <img src={activeImg || product.image} alt={product.name} className={styles.mainImage} />
               <button className={styles.zoomBtn} aria-label="Zoom image">
                 <IconSearchZoom />
               </button>
@@ -82,7 +208,7 @@ export default function ProductDetailPage() {
               {images.map((img, i) => (
                 <button
                   key={i}
-                  className={`${styles.thumbBtn} ${activeImg === img ? styles.thumbBtnActive : ''}`}
+                  className={`${styles.thumbBtn} ${(activeImg || product.image) === img ? styles.thumbBtnActive : ''}`}
                   onClick={() => setActiveImg(img)}
                 >
                   <img src={img} alt={`Thumbnail ${i + 1}`} className={styles.thumbImg} />
@@ -92,73 +218,50 @@ export default function ProductDetailPage() {
           </div>
 
           <div className={styles.detailsArea}>
-            <span className={styles.bestSellerBadge}>BEST SELLER</span>
-            <h1 className={styles.productTitle}>Aura ANC Wireless Headphones</h1>
+            {product.badge && <span className={styles.bestSellerBadge}>{product.badge}</span>}
+            <h1 className={styles.productTitle}>{product.name}</h1>
 
             <div className={styles.ratingRow}>
-              <StarRating rating={5} />
-              <span className={styles.reviewsCount}>(124 Reviews)</span>
+              <StarRating rating={product.rating} />
+              <span className={styles.reviewsCount}>({product.reviews} Reviews)</span>
               <span className={styles.metaDivider}>|</span>
               <span className={styles.inStockStatus}>
-                <span className={styles.greenDot} /> In Stock
+                <span className={styles.greenDot} style={{ background: product.stock > 0 ? '#00685c' : '#d93838' }} />
+                {product.stock > 0 ? `In Stock (${product.stock} left)` : 'Out of Stock'}
               </span>
             </div>
 
             <div className={styles.priceRow}>
-              <span className={styles.currentPrice}>$229.00</span>
-              <span className={styles.originalPrice}>$299.00</span>
+              <span className={styles.currentPrice}>${product.price.toFixed(2)}</span>
+              {product.originalPrice && (
+                <span className={styles.originalPrice}>${product.originalPrice.toFixed(2)}</span>
+              )}
             </div>
 
             <p className={styles.productDesc}>
-              Flagship hybrid noise cancellation, high-definition acoustics, and ultra-plush protein leather comfort for an immersive listening experience.
+              {product.description || 'Premium craftsmanship and high-performance design engineered to elevate your daily routine.'}
             </p>
 
             <div className={styles.selectorGroup}>
               <h3 className={styles.selectorTitle}>
-                COLOR: <span className={styles.colorName}>{selectedColor === 'midnight' ? 'MIDNIGHT BLACK' : selectedColor === 'lightgray' ? 'LIGHT GRAY' : 'NAVY BLUE'}</span>
+                CATEGORY: <span className={styles.colorName}>{product.category.toUpperCase()}</span>
               </h3>
-              <div className={styles.colorSwatches}>
-                <button
-                  className={`${styles.colorSwatch} ${selectedColor === 'midnight' ? styles.colorSwatchActive : ''}`}
-                  style={{ backgroundColor: '#171d1b' }}
-                  onClick={() => setSelectedColor('midnight')}
-                  aria-label="Midnight Black"
-                />
-                <button
-                  className={`${styles.colorSwatch} ${selectedColor === 'lightgray' ? styles.colorSwatchActive : ''}`}
-                  style={{ backgroundColor: '#eaefec' }}
-                  onClick={() => setSelectedColor('lightgray')}
-                  aria-label="Light Gray"
-                />
-                <button
-                  className={`${styles.colorSwatch} ${selectedColor === 'navy' ? styles.colorSwatchActive : ''}`}
-                  style={{ backgroundColor: '#202f44' }}
-                  onClick={() => setSelectedColor('navy')}
-                  aria-label="Navy Blue"
-                />
-              </div>
             </div>
 
-            <div className={styles.selectorGroup}>
-              <div className={styles.sizeHeader}>
-                <h3 className={styles.selectorTitle}>SIZE</h3>
-                <a href="#" className={styles.sizeGuideLink}>Size Guide</a>
+            {cartMsg && (
+              <div style={{
+                padding: '10px 16px',
+                borderRadius: '8px',
+                fontSize: '0.875rem',
+                fontWeight: 600,
+                marginBottom: '16px',
+                background: cartMsg.includes('successfully') ? '#e6f5f2' : '#fef2f2',
+                color: cartMsg.includes('successfully') ? '#00685c' : '#991b1b',
+                border: `1px solid ${cartMsg.includes('successfully') ? '#b2e2d8' : '#fecaca'}`
+              }}>
+                {cartMsg}
               </div>
-              <div className={styles.sizeOptions}>
-                <button
-                  className={`${styles.sizeOptionBtn} ${selectedSize === 'standard' ? styles.sizeOptionBtnActive : ''}`}
-                  onClick={() => setSelectedSize('standard')}
-                >
-                  Standard
-                </button>
-                <button
-                  className={`${styles.sizeOptionBtn} ${selectedSize === 'xl' ? styles.sizeOptionBtnActive : ''}`}
-                  onClick={() => setSelectedSize('xl')}
-                >
-                  Over-Ear XL
-                </button>
-              </div>
-            </div>
+            )}
 
             <div className={styles.actionRow}>
               <QuantitySelector
@@ -166,12 +269,27 @@ export default function ProductDetailPage() {
                 onChange={setQuantity}
                 size="large"
               />
-              <button className={styles.btnAddToCart}>
-                <IconCart /> Add to Cart
+              <button
+                className={styles.btnAddToCart}
+                disabled={addingToCart}
+                onClick={isInCart ? () => navigate('/cart') : handleAddToCart}
+                style={{
+                  background: isInCart ? '#00685c' : undefined
+                }}
+              >
+                <IconCart /> {addingToCart ? 'Adding…' : (isInCart ? 'Go to Cart →' : 'Add to Cart')}
               </button>
             </div>
 
-            <button className={styles.btnBuyNow}>Buy Now</button>
+            {product.stock > 0 && (
+              <button
+                className={styles.btnBuyNow}
+                disabled={addingToCart}
+                onClick={handleBuyNow}
+              >
+                Buy Now
+              </button>
+            )}
 
             <div className={styles.logisticsBar}>
               <div className={styles.logisticItem}>
@@ -205,7 +323,7 @@ export default function ProductDetailPage() {
               className={`${styles.tabHeaderBtn} ${activeTab === 'reviews' ? styles.tabHeaderBtnActive : ''}`}
               onClick={() => setActiveTab('reviews')}
             >
-              Reviews (124)
+              Reviews ({product.reviews})
             </button>
           </div>
 
@@ -213,45 +331,42 @@ export default function ProductDetailPage() {
             {activeTab === 'description' && (
               <div className={styles.tabLayout}>
                 <div className={styles.descriptionTextWrap}>
-                  <h2 className={styles.tabSubTitle}>Professional Grade Sound</h2>
+                  <h2 className={styles.tabSubTitle}>Product Overview</h2>
                   <p className={styles.tabParagraph}>
-                    Experience the peak of audio engineering with the NexCart Aura ANC Wireless Headphones. Designed for audiophiles and professional commuters alike, these headphones utilize a hybrid active noise-cancellation system that blocks out 95% of ambient noise.
-                  </p>
-                  <p className={styles.tabParagraph}>
-                    Whether you're in a busy cafe or on a long-haul flight, the Aura creates a sanctuary of sound. The custom-tuned 40mm drivers deliver crystalline highs, natural mid-tones, and a resonant, deep bass that never feels muddy.
+                    {product.description || 'Designed for high performance and durability, this product meets the highest standards of quality and user experience.'}
                   </p>
 
                   <div className={styles.highlightsGrid}>
                     <div className={styles.highlightBox}>
-                      <h4 className={styles.highlightTitle}>45H Battery</h4>
-                      <p className={styles.highlightDesc}>Continuous playback with ANC on.</p>
+                      <h4 className={styles.highlightTitle}>Stock Available</h4>
+                      <p className={styles.highlightDesc}>{product.stock} units currently in stock.</p>
                     </div>
                     <div className={styles.highlightBox}>
-                      <h4 className={styles.highlightTitle}>Transparency</h4>
-                      <p className={styles.highlightDesc}>Hear your world with one tap.</p>
+                      <h4 className={styles.highlightTitle}>Rating</h4>
+                      <p className={styles.highlightDesc}>{product.rating} / 5 average user rating.</p>
                     </div>
                   </div>
                 </div>
 
                 <div className={styles.technicalHighlights}>
-                  <h3 className={styles.techTableTitle}>Technical Highlights</h3>
+                  <h3 className={styles.techTableTitle}>Details</h3>
                   <table className={styles.techTable}>
                     <tbody>
                       <tr>
-                        <td className={styles.techKey}>Bluetooth</td>
-                        <td className={styles.techVal}>v5.3 LE</td>
+                        <td className={styles.techKey}>Product ID</td>
+                        <td className={styles.techVal}>#{product.id}</td>
                       </tr>
                       <tr>
-                        <td className={styles.techKey}>Frequency</td>
-                        <td className={styles.techVal}>10Hz - 40kHz</td>
+                        <td className={styles.techKey}>Category</td>
+                        <td className={styles.techVal}>{product.category}</td>
                       </tr>
                       <tr>
-                        <td className={styles.techKey}>Microphones</td>
-                        <td className={styles.techVal}>8-Mic Array</td>
+                        <td className={styles.techKey}>Price</td>
+                        <td className={styles.techVal}>${product.price.toFixed(2)}</td>
                       </tr>
                       <tr>
-                        <td className={styles.techKey}>Charge Port</td>
-                        <td className={styles.techVal}>USB-C PD</td>
+                        <td className={styles.techKey}>Availability</td>
+                        <td className={styles.techVal}>{product.stock > 0 ? 'In Stock' : 'Out of Stock'}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -262,45 +377,42 @@ export default function ProductDetailPage() {
             {activeTab === 'specs' && (
               <div className={styles.tabSpecsList}>
                 <h3 className={styles.techTableTitle}>Full Specifications</h3>
-                <p className={styles.tabParagraph}>Detailed device parameters list will be shown here.</p>
+                <p className={styles.tabParagraph}>
+                  Category: {product.category} | Product ID: {product.id} | Stock: {product.stock} units
+                </p>
               </div>
             )}
 
             {activeTab === 'reviews' && (
               <div className={styles.tabReviewsList}>
-                <h3 className={styles.techTableTitle}>Customer Reviews</h3>
-                <p className={styles.tabParagraph}>Customer review cards and rating highlights will load here.</p>
+                <h3 className={styles.techTableTitle}>Customer Reviews ({product.reviews})</h3>
+                <p className={styles.tabParagraph}>Average rating: {product.rating} stars based on {product.reviews} customer ratings.</p>
               </div>
             )}
           </div>
         </section>
 
         {/* Related Products */}
-        <section className={styles.relatedSection}>
-          <div className={styles.relatedHeader}>
-            <div>
-              <span className={styles.relatedSubTitle}>YOU MIGHT ALSO LIKE</span>
-              <h2 className={styles.relatedTitle}>Related Products</h2>
+        {relatedProducts.length > 0 && (
+          <section className={styles.relatedSection}>
+            <div className={styles.relatedHeader}>
+              <div>
+                <span className={styles.relatedSubTitle}>YOU MIGHT ALSO LIKE</span>
+                <h2 className={styles.relatedTitle}>Related Products</h2>
+              </div>
             </div>
-            <div className={styles.arrowControls}>
-              <button className={styles.arrowBtn} aria-label="Previous related products">
-                <span className={styles.arrowLeft}>←</span>
-              </button>
-              <button className={styles.arrowBtn} aria-label="Next related products">
-                <span className={styles.arrowRight}>→</span>
-              </button>
-            </div>
-          </div>
 
-          <div className={styles.relatedGrid}>
-            {relatedProducts.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </div>
-        </section>
+            <div className={styles.relatedGrid}>
+              {relatedProducts.slice(0, 4).map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          </section>
+        )}
       </main>
 
       <Footer />
     </div>
   )
 }
+

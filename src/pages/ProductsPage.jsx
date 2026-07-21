@@ -1,92 +1,110 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import styles from './ProductsPage.module.css'
 import { Navbar, Footer } from '../components/Layout'
 import { Breadcrumbs } from '../components/common/Breadcrumbs'
 import { ProductCard } from '../components/common/ProductCard'
 import { FilterSidebar } from '../components/products/FilterSidebar'
+import { apiGetProducts, apiAddWishlistItem, apiRemoveWishlistItem } from '../api'
 
 export default function ProductsPage() {
+  const [searchParams] = useSearchParams()
+  const searchQuery = searchParams.get('search') || ''
+
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalCount, setTotalCount] = useState(0)
+
   const [selectedCategory, setSelectedCategory] = useState({
-    electronics: true,
+    electronics: false,
     accessories: false,
     apparel: false,
   })
-  const [priceRange, setPriceRange] = useState(2500)
+  const [priceRange, setPriceRange] = useState(10000)
   const [selectedColor, setSelectedColor] = useState('darkgray')
+  const [sortBy, setSortBy] = useState('popularity')
   const [favorites, setFavorites] = useState({})
 
+  useEffect(() => {
+    let isMounted = true
+    setLoading(true)
+    apiGetProducts(currentPage)
+      .then((res) => {
+        if (!isMounted) return
+        if (typeof res === 'object' && res.products) {
+          setProducts(res.products)
+          setTotalPages(res.totalPages || 1)
+          setTotalCount(res.count || res.products.length)
+          setError(null)
+        } else if (Array.isArray(res)) {
+          setProducts(res)
+          setTotalPages(1)
+          setTotalCount(res.length)
+          setError(null)
+        }
+      })
+      .catch((err) => {
+        if (isMounted) {
+          console.error('Failed to load products:', err)
+          setError('Could not load products. Please ensure backend is running.')
+        }
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false)
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [currentPage])
+
   const handleCategoryChange = (key, val) => {
-    setSelectedCategory(prev => ({ ...prev, [key]: val }))
+    setSelectedCategory((prev) => ({ ...prev, [key]: val }))
   }
 
-  const toggleFavorite = (id) => {
-    setFavorites(prev => ({ ...prev, [id]: !prev[id] }))
+  const toggleFavorite = async (id) => {
+    const isFav = favorites[id]
+    setFavorites((prev) => ({ ...prev, [id]: !isFav }))
+    try {
+      if (isFav) {
+        await apiRemoveWishlistItem(id)
+      } else {
+        await apiAddWishlistItem(id)
+      }
+    } catch (err) {
+      console.warn('Wishlist API update:', err)
+    }
   }
 
-  const products = [
-    {
-      id: 1,
-      name: 'Aura ANC Wireless Headphones',
-      brand: 'Aura Acoustics',
-      price: 299.00,
-      originalPrice: 349.00,
-      rating: 5,
-      reviews: 124,
-      badge: 'NEW',
-      image: '/assets/headphones_hero.png',
-    },
-    {
-      id: 2,
-      name: 'K-Series Mechanical Deck',
-      brand: 'NexGen Tech',
-      price: 189.00,
-      rating: 5,
-      reviews: 86,
-      image: '/assets/mechanical_keyboard.png',
-    },
-    {
-      id: 3,
-      name: 'Chronos Smart Watch S2',
-      brand: 'Minimalist.',
-      price: 449.00,
-      originalPrice: 599.00,
-      rating: 5,
-      reviews: 342,
-      badge: 'SALE',
-      image: '/assets/nexwatch_watch.png',
-    },
-    {
-      id: 4,
-      name: 'Legacy Leather Messenger',
-      brand: 'Urban Craft',
-      price: 215.00,
-      rating: 5,
-      reviews: 42,
-      image: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=600&q=80',
-    },
-    {
-      id: 5,
-      name: 'ZenBook Titanium Ultra',
-      brand: 'NexGen Tech',
-      price: 1299.00,
-      rating: 5,
-      reviews: 312,
-      image: '/assets/nexabook_laptop.png',
-    },
-    {
-      id: 6,
-      name: 'Aura Buds Pro 2',
-      brand: 'Aura Acoustics',
-      price: 249.00,
-      rating: 5,
-      reviews: 1024,
-      image: '/assets/aura_buds.png',
-    },
-  ]
+  // Filter products by price and search query
+  const filteredProducts = products.filter((p) => {
+    if (p.price > priceRange) return false
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase()
+      const matchName = p.name.toLowerCase().includes(q)
+      const matchCat = p.category.toLowerCase().includes(q)
+      const matchDesc = p.description && p.description.toLowerCase().includes(q)
+      if (!matchName && !matchCat && !matchDesc) return false
+    }
+    return true
+  })
+
+  // Sort products
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    if (sortBy === 'price-low') return a.price - b.price
+    if (sortBy === 'price-high') return b.price - a.price
+    if (sortBy === 'rating') return b.rating - a.rating
+    return a.id - b.id
+  })
 
   return (
     <div className={styles.root}>
-      <Navbar activeLink="Shop" cartCount={3} />
+      <Navbar activeLink="Shop" />
 
       <main className={styles.main}>
         <Breadcrumbs
@@ -110,23 +128,19 @@ export default function ProductsPage() {
 
           <section className={styles.productsArea}>
             <div className={styles.topBar}>
-              <span className={styles.resultsCount}>SHOWING 12 OF 248 RESULTS</span>
+              <span className={styles.resultsCount}>
+                {loading
+                  ? 'LOADING PRODUCTS…'
+                  : `SHOWING PAGE ${currentPage} OF ${totalPages} (${totalCount || products.length} TOTAL RESULTS)`}
+              </span>
               <div className={styles.topBarActions}>
-                <div className={styles.viewToggles}>
-                  <button className={`${styles.viewBtn} ${styles.viewBtnActive}`} aria-label="Grid view">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
-                    </svg>
-                  </button>
-                  <button className={styles.viewBtn} aria-label="List view">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
-                    </svg>
-                  </button>
-                </div>
-
                 <div className={styles.sortWrapper}>
-                  <select className={styles.sortSelect} aria-label="Sort by">
+                  <select
+                    className={styles.sortSelect}
+                    aria-label="Sort by"
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                  >
                     <option value="popularity">Sort by: Popularity</option>
                     <option value="price-low">Price: Low to High</option>
                     <option value="price-high">Price: High to Low</option>
@@ -136,32 +150,76 @@ export default function ProductsPage() {
               </div>
             </div>
 
-            <div className={styles.productsGrid}>
-              {products.map((p) => (
-                <ProductCard
-                  key={p.id}
-                  product={p}
-                  isFavorite={favorites[p.id]}
-                  onToggleFavorite={toggleFavorite}
-                />
-              ))}
-            </div>
-
-            <div className={styles.pagination}>
-              <button className={styles.pageArrowBtn}>
-                <span className={styles.arrowLeft}>←</span> Previous
-              </button>
-              <div className={styles.pageNumbers}>
-                <button className={`${styles.pageNum} ${styles.pageNumActive}`}>1</button>
-                <button className={styles.pageNum}>2</button>
-                <button className={styles.pageNum}>3</button>
-                <span className={styles.pageEllipsis}>...</span>
-                <button className={styles.pageNum}>12</button>
+            {loading ? (
+              <div style={{ padding: '48px 0', textTransform: 'uppercase', color: '#6d7a76', letterSpacing: '0.05em' }}>
+                Loading catalog items…
               </div>
-              <button className={styles.pageArrowBtn}>
-                Next <span className={styles.arrowRight}>→</span>
-              </button>
-            </div>
+            ) : error ? (
+              <div style={{ padding: '36px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '12px', color: '#991b1b', margin: '20px 0' }}>
+                {error}
+              </div>
+            ) : sortedProducts.length === 0 ? (
+              <div style={{ padding: '48px 0', color: '#6d7a76' }}>
+                No products found matching the criteria.
+              </div>
+            ) : (
+              <div className={styles.productsGrid}>
+                {sortedProducts.map((p) => (
+                  <ProductCard
+                    key={p.id}
+                    product={p}
+                    isFavorite={favorites[p.id]}
+                    onToggleFavorite={toggleFavorite}
+                  />
+                ))}
+              </div>
+            )}
+
+            {!loading && sortedProducts.length > 0 && (
+              <div className={styles.pagination}>
+                <button
+                  type="button"
+                  className={styles.pageArrowBtn}
+                  disabled={currentPage <= 1}
+                  onClick={() => {
+                    setCurrentPage((prev) => Math.max(1, prev - 1))
+                    window.scrollTo({ top: 0, behavior: 'smooth' })
+                  }}
+                  style={{ opacity: currentPage <= 1 ? 0.5 : 1, cursor: currentPage <= 1 ? 'not-allowed' : 'pointer' }}
+                >
+                  <span className={styles.arrowLeft}>←</span> Previous
+                </button>
+
+                <div className={styles.pageNumbers}>
+                  {Array.from({ length: Math.max(1, totalPages) }, (_, i) => i + 1).map((pageNum) => (
+                    <button
+                      key={pageNum}
+                      type="button"
+                      className={`${styles.pageNum} ${currentPage === pageNum ? styles.pageNumActive : ''}`}
+                      onClick={() => {
+                        setCurrentPage(pageNum)
+                        window.scrollTo({ top: 0, behavior: 'smooth' })
+                      }}
+                    >
+                      {pageNum}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  className={styles.pageArrowBtn}
+                  disabled={currentPage >= totalPages}
+                  onClick={() => {
+                    setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                    window.scrollTo({ top: 0, behavior: 'smooth' })
+                  }}
+                  style={{ opacity: currentPage >= totalPages ? 0.5 : 1, cursor: currentPage >= totalPages ? 'not-allowed' : 'pointer' }}
+                >
+                  Next <span className={styles.arrowRight}>→</span>
+                </button>
+              </div>
+            )}
           </section>
         </div>
       </main>
@@ -170,3 +228,4 @@ export default function ProductsPage() {
     </div>
   )
 }
+

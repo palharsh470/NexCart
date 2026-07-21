@@ -104,45 +104,6 @@ export function FilterSidebar({
           </label>
         </div>
       </div>
-
-      {/* Color */}
-      <div className={styles.filterSection}>
-        <h3 className={styles.filterTitle}>Color</h3>
-        <div className={styles.colorSwatches}>
-          {colors.map((color) => (
-            <button
-              key={color.id}
-              type="button"
-              className={`${styles.colorSwatch} ${selectedColor === color.id ? styles.colorSwatchActive : ''}`}
-              style={{ '--swatch-color': color.value }}
-              onClick={() => onColorChange(color.id)}
-              aria-label={`Filter by ${color.id}`}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Brand */}
-      <div className={styles.filterSection}>
-        <h3 className={styles.filterTitle}>Brand</h3>
-        <div className={styles.checkboxGroup}>
-          <label className={styles.checkboxLabel}>
-            <input type="checkbox" className={styles.checkboxInput} />
-            <span className={styles.customCheckbox} />
-            <span className={styles.labelText}>NexGen Tech</span>
-          </label>
-          <label className={styles.checkboxLabel}>
-            <input type="checkbox" className={styles.checkboxInput} />
-            <span className={styles.customCheckbox} />
-            <span className={styles.labelText}>Aura Acoustics</span>
-          </label>
-          <label className={styles.checkboxLabel}>
-            <input type="checkbox" className={styles.checkboxInput} />
-            <span className={styles.customCheckbox} />
-            <span className={styles.labelText}>Minimalist.</span>
-          </label>
-        </div>
-      </div>
     </aside>
   )
 }

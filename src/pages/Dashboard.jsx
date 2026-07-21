@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import styles from './Dashboard.module.css'
 import { Navbar, Footer } from '../components/Layout'
 import { HeroBanner } from '../components/dashboard/HeroBanner'
 import { TrustBar } from '../components/dashboard/TrustBar'
+import { apiGetFeaturedProducts } from '../api'
 
 /* ── Category Icons ────────────────────────── */
 const IconMonitor = () => (
@@ -30,9 +31,60 @@ const IconHouse = () => (
 )
 
 export default function Dashboard() {
+  const [featured, setFeatured] = useState([])
+
+  useEffect(() => {
+    let isMounted = true
+    apiGetFeaturedProducts()
+      .then((data) => {
+        if (isMounted && data && data.length > 0) {
+          setFeatured(data)
+        }
+      })
+      .catch((err) => {
+        console.log('Using default hero products:', err)
+      })
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  const bigProduct = featured[0] || {
+    id: 1,
+    name: 'Featured Product',
+    price: 499.0,
+    category: 'NEW ARRIVAL',
+    description: 'Modern performance and elegant design.',
+    image: '/assets/product_placeholder.svg',
+  }
+
+  const budsProduct = featured[1] || {
+    id: 2,
+    name: 'Featured Accessory',
+    price: 179.0,
+    description: 'Pure clarity and comfort.',
+    image: '/assets/product_placeholder.svg',
+  }
+
+  const small1 = featured[2] || {
+    id: 3,
+    name: 'Smart Device',
+    category: 'Smart Living',
+    price: 249.0,
+    image: '/assets/product_placeholder.svg',
+  }
+
+  const small2 = featured[3] || {
+    id: 4,
+    name: 'Audio Gear',
+    category: 'Home Audio',
+    price: 199.0,
+    image: '/assets/product_placeholder.svg',
+  }
+
   return (
     <div className={styles.root}>
-      <Navbar activeLink="Shop" cartCount={3} />
+      <Navbar activeLink="Categories" />
 
       <main className={styles.main}>
         {/* Hero Section */}
@@ -94,66 +146,66 @@ export default function Dashboard() {
           </div>
 
           <div className={styles.trendingGrid}>
-            <div className={styles.trendingBigCard}>
+            <Link to={`/product/${bigProduct.id}`} className={styles.trendingBigCard} style={{ textDecoration: 'none' }}>
               <img
-                src="/assets/nexabook_laptop.png"
-                alt="NexaBook Pro M3 laptop"
+                src={bigProduct.image}
+                alt={bigProduct.name}
                 className={styles.bigCardImg}
               />
               <div className={styles.bigCardOverlay}>
-                <span className={styles.newArrivalBadge}>NEW ARRIVAL</span>
-                <h3 className={styles.bigCardTitle}>NexaBook Pro M3</h3>
-                <p className={styles.bigCardDesc}>The future of performance and portability.</p>
-                <span className={styles.bigCardPrice}>$1,499.00</span>
+                <span className={styles.newArrivalBadge}>{bigProduct.category || 'NEW ARRIVAL'}</span>
+                <h3 className={styles.bigCardTitle}>{bigProduct.name}</h3>
+                <p className={styles.bigCardDesc}>{bigProduct.description || 'The future of performance and portability.'}</p>
+                <span className={styles.bigCardPrice}>${bigProduct.price.toFixed(2)}</span>
               </div>
-            </div>
+            </Link>
 
             <div className={styles.trendingRightGroup}>
-              <div className={styles.budsCard}>
+              <Link to={`/product/${budsProduct.id}`} className={styles.budsCard} style={{ textDecoration: 'none', color: 'inherit' }}>
                 <div className={styles.budsContent}>
-                  <h3 className={styles.budsTitle}>Aura Buds 2</h3>
-                  <p className={styles.budsDesc}>Pure silence, pure sound.</p>
-                  <span className={styles.budsPrice}>$179.00</span>
+                  <h3 className={styles.budsTitle}>{budsProduct.name}</h3>
+                  <p className={styles.budsDesc}>{budsProduct.description || 'Pure silence, pure sound.'}</p>
+                  <span className={styles.budsPrice}>${budsProduct.price.toFixed(2)}</span>
                 </div>
                 <div className={styles.budsImgWrap}>
                   <img
-                    src="/assets/aura_buds.png"
-                    alt="Aura Buds 2"
+                    src={budsProduct.image}
+                    alt={budsProduct.name}
                     className={styles.budsImg}
                   />
                 </div>
-              </div>
+              </Link>
 
               <div className={styles.smallCardsRow}>
-                <div className={styles.smallCard}>
+                <Link to={`/product/${small1.id}`} className={styles.smallCard} style={{ textDecoration: 'none', color: 'inherit' }}>
                   <div className={styles.smallCardImgWrap}>
                     <img
-                      src="/assets/nexwatch_watch.png"
-                      alt="NexWatch Elite"
+                      src={small1.image}
+                      alt={small1.name}
                       className={styles.smallCardImg}
                     />
                   </div>
                   <div className={styles.smallCardContent}>
-                    <h4 className={styles.smallCardTitle}>NexWatch Elite</h4>
-                    <p className={styles.smallCardDesc}>Smart Living</p>
-                    <span className={styles.smallCardPrice}>$249.00</span>
+                    <h4 className={styles.smallCardTitle}>{small1.name}</h4>
+                    <p className={styles.smallCardDesc}>{small1.category || 'Smart Living'}</p>
+                    <span className={styles.smallCardPrice}>${small1.price.toFixed(2)}</span>
                   </div>
-                </div>
+                </Link>
 
-                <div className={styles.smallCard}>
+                <Link to={`/product/${small2.id}`} className={styles.smallCard} style={{ textDecoration: 'none', color: 'inherit' }}>
                   <div className={styles.smallCardImgWrap}>
                     <img
-                      src="/assets/omni_sound_speaker.png"
-                      alt="Omni Sound G1"
+                      src={small2.image}
+                      alt={small2.name}
                       className={styles.smallCardImg}
                     />
                   </div>
                   <div className={styles.smallCardContent}>
-                    <h4 className={styles.smallCardTitle}>Omni Sound G1</h4>
-                    <p className={styles.smallCardDesc}>Home Audio</p>
-                    <span className={styles.smallCardPrice}>$199.00</span>
+                    <h4 className={styles.smallCardTitle}>{small2.name}</h4>
+                    <p className={styles.smallCardDesc}>{small2.category || 'Home Audio'}</p>
+                    <span className={styles.smallCardPrice}>${small2.price.toFixed(2)}</span>
                   </div>
-                </div>
+                </Link>
               </div>
             </div>
           </div>
@@ -164,3 +216,4 @@ export default function Dashboard() {
     </div>
   )
 }
+

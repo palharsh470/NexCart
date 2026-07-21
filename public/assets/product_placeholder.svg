@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0f7f5"/>
+      <stop offset="100%" stop-color="#e2eae7"/>
+    </linearGradient>
+    <linearGradient id="box" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#dde7e4"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#bg)"/>
+  <rect x="100" y="100" width="200" height="200" rx="32" fill="url(#box)" stroke="#ccd8d4" stroke-width="2"/>
+  <g transform="translate(160, 150)">
+    <rect x="0" y="20" width="80" height="60" rx="8" fill="none" stroke="#00685c" stroke-width="4"/>
+    <path d="M 20 20 L 32 6 L 48 6 L 60 20 Z" fill="none" stroke="#00685c" stroke-width="4" stroke-linejoin="round"/>
+    <circle cx="40" cy="50" r="10" fill="#00685c"/>
+  </g>
+  <text x="200" y="270" font-family="sans-serif" font-size="13" font-weight="700" fill="#6d7a76" text-anchor="middle" letter-spacing="1">NEXCART PRODUCT</text>
+</svg>

@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import styles from './RecommendedSection.module.css'
+import { apiGetFeaturedProducts } from '../../api'
 
 export function RecommendedSection() {
-  const recommendations = [
+  const [recommendations, setRecommendations] = useState([
     {
       badge: 'NEW ARRIVAL',
       badgeClass: styles.badgeNew,
@@ -17,10 +18,33 @@ export function RecommendedSection() {
       badgeClass: styles.badgeSmart,
       title: 'Lumina Core Hub',
       desc: 'The ultimate control center for your modern ecosystem.',
-      image: 'https://images.unsplash.com/photo-1543512214-318c7553f230?auto=format&fit=crop&w=600&q=80',
-      link: '/shop',
+      image: '/assets/nexwatch_watch.png',
+      link: '/product/3',
     },
-  ]
+  ])
+
+  useEffect(() => {
+    let isMounted = true
+    apiGetFeaturedProducts()
+      .then((products) => {
+        if (!isMounted || !products || products.length === 0) return
+        setRecommendations(
+          products.slice(0, 2).map((p, index) => ({
+            badge: index === 0 ? 'NEW ARRIVAL' : 'FEATURED',
+            badgeClass: index === 0 ? styles.badgeNew : styles.badgeSmart,
+            title: p.name,
+            desc: p.description || 'Premium engineering for an immersive experience.',
+            image: p.image,
+            link: `/product/${p.id}`,
+          }))
+        )
+      })
+      .catch(() => {})
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   return (
     <section className={styles.section}>
@@ -46,3 +70,4 @@ export function RecommendedSection() {
     </section>
   )
 }
+

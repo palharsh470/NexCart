@@ -37,25 +37,30 @@ const IconLogout = () => (
   </svg>
 )
 
-export function ProfileSidebar({ activeTab = 'profile', onTabChange }) {
-  const avatarUrl = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80'
+export function ProfileSidebar({ activeTab = 'profile', onTabChange, user }) {
+  const displayName = user?.profile?.full_name || user?.username || 'User'
+  const avatarUrl = user?.profile?.avatar || null
 
   const navItems = [
     { id: 'profile', label: 'Profile', icon: <IconUser /> },
     { id: 'orders', label: 'Orders', icon: <IconBag /> },
     { id: 'wishlist', label: 'Wishlist', icon: <IconHeart /> },
-    { id: 'addresses', label: 'Addresses', icon: <IconMapPin /> },
-    { id: 'payment', label: 'Payment Methods', icon: <IconCreditCard /> },
   ]
 
   return (
     <aside className={styles.sidebarCard}>
       {/* User Header */}
       <div className={styles.userHeader}>
-        <img src={avatarUrl} alt="Alex Rivera" className={styles.avatar} />
+        {avatarUrl ? (
+          <img src={avatarUrl} alt={displayName} className={styles.avatar} />
+        ) : (
+          <div className={styles.avatarFallback}>
+            {displayName.charAt(0).toUpperCase()}
+          </div>
+        )}
         <div className={styles.userInfo}>
-          <h2 className={styles.userName}>Alex Rivera</h2>
-          <span className={styles.userRole}>Premium Member</span>
+          <h2 className={styles.userName}>{displayName}</h2>
+          <span className={styles.userRole}>{user?.email || 'Member'}</span>
         </div>
       </div>
 

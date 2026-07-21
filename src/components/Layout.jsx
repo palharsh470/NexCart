@@ -1,10 +1,103 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import styles from './Layout.module.css'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { IconSearch, IconHeart, IconCart, IconNexLogo } from './Icons'
+import { useAuth } from '../AuthContext'
+import { apiGetCart, apiGetWishlist, apiSearchProducts } from '../api'
 
 /* ── Navbar ─────────────────────────────────── */
-export function Navbar({ activeAction, activeLink = 'Shop', cartCount = 3, wishlistCount = 4 }) {
+export function Navbar({ activeAction, activeLink, cartCount: propCartCount, wishlistCount: propWishlistCount }) {
+  const { user, isAuthenticated } = useAuth()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const path = location.pathname
+
+  const [liveCartCount, setLiveCartCount] = useState(0)
+  const [liveWishlistCount, setLiveWishlistCount] = useState(0)
+
+  // Search Bar State
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState([])
+  const [searchLoading, setSearchLoading] = useState(false)
+  const [showDropdown, setShowDropdown] = useState(false)
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([])
+      setShowDropdown(false)
+      return
+    }
+
+    const timer = setTimeout(() => {
+      setSearchLoading(true)
+      apiSearchProducts(searchQuery)
+        .then((results) => {
+          setSearchResults(results)
+          setShowDropdown(true)
+        })
+        .catch(() => setSearchResults([]))
+        .finally(() => setSearchLoading(false))
+    }, 250)
+
+    return () => clearTimeout(timer)
+  }, [searchQuery])
+
+  const handleSearchSubmit = (e) => {
+    if (e.key === 'Enter' || e.type === 'click') {
+      if (searchQuery.trim()) {
+        setShowDropdown(false)
+        navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`)
+      }
+    }
+  }
+
+  useEffect(() => {
+    let isMounted = true
+    const fetchCounts = () => {
+      if (!isAuthenticated) {
+        if (isMounted) {
+          setLiveCartCount(0)
+          setLiveWishlistCount(0)
+        }
+        return
+      }
+
+      apiGetCart()
+        .then((items) => {
+          if (isMounted) setLiveCartCount(Array.isArray(items) ? items.length : 0)
+        })
+        .catch(() => {
+          if (isMounted) setLiveCartCount(0)
+        })
+
+      apiGetWishlist()
+        .then((items) => {
+          if (isMounted) setLiveWishlistCount(Array.isArray(items) ? items.length : 0)
+        })
+        .catch(() => {
+          if (isMounted) setLiveWishlistCount(0)
+        })
+    }
+
+    fetchCounts()
+    window.addEventListener('cart-updated', fetchCounts)
+
+    return () => {
+      isMounted = false
+      window.removeEventListener('cart-updated', fetchCounts)
+    }
+  }, [isAuthenticated, location.pathname])
+
+  const cartCount = propCartCount !== undefined ? propCartCount : liveCartCount
+  const wishlistCount = propWishlistCount !== undefined ? propWishlistCount : liveWishlistCount
+
+  const isCategoriesActive = activeLink ? activeLink === 'Categories' : (path === '/' || path === '/categories')
+  const isShopActive = activeLink ? activeLink === 'Shop' : (path === '/shop')
+
+  // Build display name from user data
+  const displayName = user?.profile?.full_name || user?.username || 'User'
+  const avatarUrl = user?.profile?.avatar || null
+
   return (
     <nav className={styles.navbar}>
       <div className={styles.navInner}>
@@ -13,19 +106,61 @@ export function Navbar({ activeAction, activeLink = 'Shop', cartCount = 3, wishl
           <span className={styles.navLogoText}>NexCart</span>
         </Link>
 
-        <div className={styles.searchBar}>
-          <span className={styles.searchIcon}><IconSearch /></span>
-          <input
-            type="search"
-            placeholder="Search products, brands, tech..."
-            className={styles.searchInput}
-            aria-label="Search products"
-          />
+        <div className={styles.searchContainer} style={{ position: 'relative', flex: 1, maxWidth: '320px' }}>
+          <div className={styles.searchBar}>
+            <span
+              className={styles.searchIcon}
+              onClick={handleSearchSubmit}
+              style={{ cursor: 'pointer' }}
+            >
+              <IconSearch />
+            </span>
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleSearchSubmit}
+              onFocus={() => searchQuery.trim() && setShowDropdown(true)}
+              placeholder="Search products, brands, tech..."
+              className={styles.searchInput}
+              aria-label="Search products"
+            />
+          </div>
+
+          {showDropdown && (
+            <div className={styles.searchDropdown}>
+              {searchLoading ? (
+                <div className={styles.searchLoadingItem}>Searching catalog…</div>
+              ) : searchResults.length === 0 ? (
+                <div className={styles.searchEmptyItem}>No products found for "{searchQuery}"</div>
+              ) : (
+                searchResults.slice(0, 5).map((item) => (
+                  <div
+                    key={item.id}
+                    className={styles.searchResultItem}
+                    onClick={() => {
+                      setShowDropdown(false)
+                      setSearchQuery('')
+                      navigate(`/product/${item.id}`)
+                    }}
+                  >
+                    <img src={item.image} alt={item.name} className={styles.searchItemImg} />
+                    <div className={styles.searchItemInfo}>
+                      <span className={styles.searchItemTitle}>{item.name}</span>
+                      <span className={styles.searchItemMeta}>
+                        {item.category} • ${item.price.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </div>
 
         <div className={styles.navLinks}>
-          <Link to="/" className={`${styles.navLink} ${activeLink === 'Categories' ? styles.navLinkActive : ''}`}>Categories</Link>
-          <Link to="/shop" className={`${styles.navLink} ${activeLink === 'Shop' ? styles.navLinkActive : ''}`}>Shop</Link>
+          <Link to="/" className={`${styles.navLink} ${isCategoriesActive ? styles.navLinkActive : ''}`}>Categories</Link>
+          <Link to="/shop" className={`${styles.navLink} ${isShopActive ? styles.navLinkActive : ''}`}>Shop</Link>
         </div>
 
         <div className={styles.navActions}>
@@ -42,19 +177,29 @@ export function Navbar({ activeAction, activeLink = 'Shop', cartCount = 3, wishl
             {cartCount > 0 && <span className={styles.cartBadge}>{cartCount}</span>}
           </Link>
           <span className={styles.navDivider} />
-          <Link
-            to="/sign-in"
-            className={`${styles.btnSignIn} ${activeAction === 'signin' ? styles.btnSignInActive : ''}`}
-          >
-            Sign In
-          </Link>
-          <Link to="/profile" className={`${styles.profileBtn} ${activeAction === 'profile' ? styles.profileBtnActive : ''}`} aria-label="Profile">
-            <img
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
-              alt="Alex Rivera"
-              className={styles.profileAvatar}
-            />
-          </Link>
+
+          {isAuthenticated ? (
+            <Link to="/profile" className={`${styles.profileBtn} ${activeAction === 'profile' ? styles.profileBtnActive : ''}`} aria-label="Profile">
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={displayName}
+                  className={styles.profileAvatar}
+                />
+              ) : (
+                <span className={styles.profileAvatarFallback}>
+                  {displayName.charAt(0).toUpperCase()}
+                </span>
+              )}
+            </Link>
+          ) : (
+            <Link
+              to="/sign-in"
+              className={`${styles.btnSignIn} ${activeAction === 'signin' ? styles.btnSignInActive : ''}`}
+            >
+              Sign In
+            </Link>
+          )}
         </div>
       </div>
     </nav>
