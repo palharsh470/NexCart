@@ -44,7 +44,7 @@ export default function WishlistPage() {
       setError('Please sign in to view your saved wishlist.')
     }
 
-    // Load recommendations
+    
     apiGetFeaturedProducts()
       .then((feat) => {
         if (feat && feat.length > 0) {
@@ -62,7 +62,7 @@ export default function WishlistPage() {
   }, [isAuthenticated])
 
   const handleRemoveItem = async (productId) => {
-    // Optimistic UI update
+    
     setWishlistItems((prev) => prev.filter((item) => item.productId !== productId && item.id !== productId))
     try {
       await apiRemoveWishlistItem(productId)
@@ -120,7 +120,7 @@ export default function WishlistPage() {
           </div>
         )}
 
-        {/* Wishlist Items Grid */}
+        {}
         {loading ? (
           <div className={styles.emptyState}>
             <p className={styles.emptyText}>Loading your wishlist…</p>
@@ -182,10 +182,10 @@ export default function WishlistPage() {
           </div>
         )}
 
-        {/* Section Divider */}
+        {}
         <hr className={styles.divider} />
 
-        {/* Recommendations Section */}
+        {}
         {recommendations.length > 0 && (
           <section className={styles.recommendationsSection}>
             <div className={styles.recomHeader}>

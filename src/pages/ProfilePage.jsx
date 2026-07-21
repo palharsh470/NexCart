@@ -13,7 +13,7 @@ export default function ProfilePage() {
   const { user, isAuthenticated, loading, logout } = useAuth()
   const navigate = useNavigate()
 
-  // Redirect to sign-in if not authenticated (after loading completes)
+  
   React.useEffect(() => {
     if (!loading && !isAuthenticated) {
       navigate('/sign-in', { replace: true })
@@ -43,7 +43,7 @@ export default function ProfilePage() {
     setActiveTab(tab)
   }
 
-  // Show nothing while checking auth
+  
   if (loading) {
     return (
       <div className={styles.root}>
@@ -66,20 +66,20 @@ export default function ProfilePage() {
 
       <main className={styles.main}>
         <div className={styles.layout}>
-          {/* Sidebar Left */}
+          {}
           <div className={styles.sidebarArea}>
             <ProfileSidebar activeTab={activeTab} onTabChange={handleTabChange} user={user} />
           </div>
 
-          {/* Right Main Content */}
+          {}
           <div className={styles.contentArea}>
-            {/* Top Stat Cards */}
+            {}
             <ProfileStats />
 
-            {/* Recent Orders Table */}
+            {}
             <RecentOrdersTable />
 
-            {/* Recommended Products Promo Grid */}
+            {}
             <RecommendedSection />
           </div>
         </div>

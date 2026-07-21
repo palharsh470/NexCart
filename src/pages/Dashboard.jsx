@@ -6,7 +6,6 @@ import { HeroBanner } from '../components/dashboard/HeroBanner'
 import { TrustBar } from '../components/dashboard/TrustBar'
 import { apiGetFeaturedProducts } from '../api'
 
-/* ── Category Icons ────────────────────────── */
 const IconMonitor = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00685c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
@@ -87,10 +86,10 @@ export default function Dashboard() {
       <Navbar activeLink="Categories" />
 
       <main className={styles.main}>
-        {/* Hero Section */}
+        {}
         <HeroBanner />
 
-        {/* Explore Featured Categories */}
+        {}
         <section className={styles.section}>
           <span className={styles.sectionSub}>HANDPICKED COLLECTIONS</span>
           <h2 className={styles.sectionTitle}>Explore Featured Categories</h2>
@@ -130,10 +129,10 @@ export default function Dashboard() {
           </div>
         </section>
 
-        {/* Trust Bar */}
+        {}
         <TrustBar />
 
-        {/* Trending Releases */}
+        {}
         <section className={styles.section}>
           <div className={styles.trendingHeader}>
             <div>

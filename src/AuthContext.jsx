@@ -22,8 +22,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => getSavedUser())
   const [loading, setLoading] = useState(true)
 
-  /* On mount, try to restore session from stored token */
-  useEffect(() => {
+    useEffect(() => {
     const token = getAccessToken()
     if (!token) {
       setLoading(false)
@@ -36,15 +35,14 @@ export function AuthProvider({ children }) {
         saveUser(userData)
       })
       .catch(() => {
-        // Token expired or invalid
+        
         clearTokens()
         setUser(null)
       })
       .finally(() => setLoading(false))
   }, [])
 
-  /* Login */
-  const login = useCallback(async (username, password) => {
+    const login = useCallback(async (username, password) => {
     const data = await apiLogin({ username, password })
     saveTokens(data.access, data.refresh)
     saveUser(data.user)
@@ -52,15 +50,13 @@ export function AuthProvider({ children }) {
     return data.user
   }, [])
 
-  /* Logout */
-  const logout = useCallback(async () => {
+    const logout = useCallback(async () => {
     await apiLogout()
     clearTokens()
     setUser(null)
   }, [])
 
-  /* Update local user state (e.g. after profile edit) */
-  const refreshUser = useCallback(async () => {
+    const refreshUser = useCallback(async () => {
     try {
       const userData = await apiGetMe()
       setUser(userData)

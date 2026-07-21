@@ -15,7 +15,7 @@ export function OrderSummary({ subtotal, tax, isCartEmpty, onCheckout, isCheckin
     setPromoMsg('')
     try {
       const res = await apiApplyCoupon(promoCode.trim())
-      setPromoDiscount(25.00) // Default discount value
+      setPromoDiscount(25.00)
       setPromoMsg(res.message || `Coupon ${res.coupon || promoCode} applied successfully!`)
     } catch (err) {
       setPromoDiscount(0)
@@ -53,7 +53,7 @@ export function OrderSummary({ subtotal, tax, isCartEmpty, onCheckout, isCheckin
         )}
       </div>
 
-      {/* Promo Code Box */}
+
       <div className={styles.promoSection}>
         <label className={styles.promoLabel}>Apply Promo Code</label>
         <div className={styles.promoForm}>
@@ -80,7 +80,7 @@ export function OrderSummary({ subtotal, tax, isCartEmpty, onCheckout, isCheckin
         )}
       </div>
 
-      {/* Grand Total */}
+      { }
       <div className={styles.grandTotalSection}>
         <div className={styles.grandTotalRow}>
           <span className={styles.grandTotalTitle}>Grand Total</span>
@@ -89,7 +89,7 @@ export function OrderSummary({ subtotal, tax, isCartEmpty, onCheckout, isCheckin
         <p className={styles.dutiesSubtext}>Inclusive of all duties</p>
       </div>
 
-      {/* Checkout CTA */}
+      { }
       <button
         type="button"
         className={styles.btnCheckout}
@@ -99,7 +99,7 @@ export function OrderSummary({ subtotal, tax, isCartEmpty, onCheckout, isCheckin
         {isCheckingOut ? 'Placing Order…' : 'Proceed to Checkout'} <IconCart />
       </button>
 
-      {/* Assurances */}
+      { }
       <div className={styles.assurances}>
         <div className={styles.assuranceItem}>
           <span className={styles.checkWrap}><IconCheck /></span>

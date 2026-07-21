@@ -1,8 +1,8 @@
-/* ── NexCart API Service ──────────────────────────── */
+
 
 const API_BASE = '/api'
 
-/* ── Token Storage ─────────────────────────────────── */
+
 export function saveTokens(access, refresh) {
   localStorage.setItem('nexcart_access', access)
   localStorage.setItem('nexcart_refresh', refresh)
@@ -35,18 +35,15 @@ export function getSavedUser() {
   }
 }
 
-/* ── Helper: build headers ─────────────────────────── */
+
 function authHeaders() {
   const token = getAccessToken()
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
-/* ── API Calls ─────────────────────────────────────── */
 
-/**
- * Register a new user.
- * POST /register/
- */
+
+
 export async function apiRegister({ username, email, password, confirm_password, full_name }) {
   const res = await fetch(`${API_BASE}/register/`, {
     method: 'POST',
@@ -57,7 +54,7 @@ export async function apiRegister({ username, email, password, confirm_password,
   const data = await res.json()
 
   if (!res.ok) {
-    // Django REST returns field errors as { field: [messages] }
+    
     const err = new Error('Registration failed')
     err.fieldErrors = data
     err.status = res.status
@@ -67,11 +64,7 @@ export async function apiRegister({ username, email, password, confirm_password,
   return data
 }
 
-/**
- * Login with username + password.
- * POST /login/
- * Returns { access, refresh, user }
- */
+
 export async function apiLogin({ username, password }) {
   const res = await fetch(`${API_BASE}/login/`, {
     method: 'POST',
@@ -88,13 +81,10 @@ export async function apiLogin({ username, password }) {
     throw err
   }
 
-  return data // { access, refresh, user }
+  return data 
 }
 
-/**
- * Logout — blacklist the refresh token.
- * POST /logout/
- */
+
 export async function apiLogout() {
   const refresh = getRefreshToken()
   if (!refresh) return
@@ -109,14 +99,11 @@ export async function apiLogout() {
       body: JSON.stringify({ refresh }),
     })
   } catch {
-    // Silently fail — we'll clear tokens anyway
+    
   }
 }
 
-/**
- * Get current user profile.
- * GET /me/
- */
+
 export async function apiGetMe() {
   const res = await fetch(`${API_BASE}/me/`, {
     method: 'GET',
@@ -133,10 +120,7 @@ export async function apiGetMe() {
   return res.json()
 }
 
-/**
- * Forgot password — send reset email.
- * POST /forgot-password/
- */
+
 export async function apiForgotPassword({ email }) {
   const res = await fetch(`${API_BASE}/forgot-password/`, {
     method: 'POST',
@@ -156,22 +140,20 @@ export async function apiForgotPassword({ email }) {
   return data
 }
 
-/* ── Product APIs & Helpers ────────────────────────── */
+
 
 const DEFAULT_ASSET_IMAGES = [
   '/assets/product_placeholder.svg',
 ]
 
-/**
- * Normalizes backend Django product data to the standard format required by frontend components.
- */
+
 export function normalizeProduct(p) {
   if (!p) return null
 
   const id = p.id
   let img = p.images
 
-  // Check if image path is valid image file or full URL
+  
   const isValidImage =
     typeof img === 'string' &&
     img.length > 5 &&
@@ -213,10 +195,7 @@ export function normalizeProduct(p) {
   }
 }
 
-/**
- * Fetch list of products with pagination support.
- * GET /products/?page=X or /products/X/
- */
+
 export async function apiGetProducts(page = 1) {
   let res = await fetch(`${API_BASE}/products/?page=${page}`)
   if (!res.ok && res.status === 404) {
@@ -271,9 +250,7 @@ export async function apiGetProducts(page = 1) {
   }
 }
 
-/**
- * Frontend client-side product search.
- */
+
 export async function apiSearchProducts(query) {
   if (!query || !query.trim()) return []
   const q = query.trim().toLowerCase()
@@ -346,10 +323,7 @@ export async function apiGetProductDetail(id) {
   })
 }
 
-/**
- * Fetch related products for a product detail view.
- * GET /products/<id>/related/
- */
+
 export async function apiGetRelatedProducts(id) {
   try {
     const res = await fetch(`${API_BASE}/products/${id}/related/`)
@@ -364,7 +338,7 @@ export async function apiGetRelatedProducts(id) {
   return []
 }
 
-/* ── Cart APIs ─────────────────────────────────────── */
+
 
 export function normalizeCartItem(item) {
   if (!item) return null
@@ -384,7 +358,7 @@ export function normalizeCartItem(item) {
   }
 }
 
-/* ── Local Cart Storage Helpers ─────────────────────── */
+
 
 export function getLocalCart() {
   try {
@@ -461,10 +435,7 @@ export async function getLocalCartItemsNormalized() {
   return items.filter(Boolean)
 }
 
-/**
- * Get user's cart items.
- * GET /cart/
- */
+
 export async function apiGetCart() {
   let backendItems = []
   if (getAccessToken()) {
@@ -489,14 +460,14 @@ export async function apiGetCart() {
 
   const mergedMap = new Map()
 
-  // Add backend items first keyed by productId
+  
   backendItems.forEach((item) => {
     if (item && (item.productId !== undefined && item.productId !== null)) {
       mergedMap.set(item.productId, item)
     }
   })
 
-  // Merge local items by productId to avoid duplicate entries
+  
   localItems.forEach((item) => {
     if (item && (item.productId !== undefined && item.productId !== null)) {
       if (mergedMap.has(item.productId)) {
@@ -514,10 +485,7 @@ export async function apiGetCart() {
   return Array.from(mergedMap.values())
 }
 
-/**
- * Add item to cart.
- * POST /cart/items/
- */
+
 export async function apiAddCartItem(productId, quantity = 1) {
   const numId = Number(productId) || productId
   let backendData = null
@@ -556,10 +524,7 @@ export async function apiAddCartItem(productId, quantity = 1) {
   return backendData || { success: true }
 }
 
-/**
- * Update cart item quantity.
- * PATCH /cart/items/<itemId>/
- */
+
 export async function apiUpdateCartItem(itemId, quantity) {
   const res = await fetch(`${API_BASE}/cart/items/${itemId}/`, {
     method: 'PATCH',
@@ -578,10 +543,7 @@ export async function apiUpdateCartItem(itemId, quantity) {
   return data
 }
 
-/**
- * Remove item from cart.
- * DELETE /cart/items/<itemId>/delete/
- */
+
 export async function apiRemoveCartItem(itemId) {
   removeLocalCartItem(itemId)
   try {
@@ -598,10 +560,7 @@ export async function apiRemoveCartItem(itemId) {
   return true
 }
 
-/**
- * Clear all cart items.
- * DELETE /cart/clear/
- */
+
 export async function apiClearCart() {
   clearLocalCart()
   try {
@@ -621,10 +580,7 @@ export async function apiClearCart() {
   return true
 }
 
-/**
- * Apply coupon.
- * POST /cart/apply-coupon/
- */
+
 export async function apiApplyCoupon(coupon_code) {
   const res = await fetch(`${API_BASE}/cart/apply-coupon/`, {
     method: 'POST',
@@ -643,7 +599,7 @@ export async function apiApplyCoupon(coupon_code) {
   return data
 }
 
-/* ── Wishlist APIs ─────────────────────────────────── */
+
 
 export function normalizeWishlistItem(item) {
   if (!item) return null
@@ -661,10 +617,7 @@ export function normalizeWishlistItem(item) {
   }
 }
 
-/**
- * Get user's wishlist items.
- * GET /wishlist/
- */
+
 export async function apiGetWishlist() {
   const res = await fetch(`${API_BASE}/wishlist/`, {
     headers: authHeaders(),
@@ -678,10 +631,7 @@ export async function apiGetWishlist() {
   return list.map(normalizeWishlistItem)
 }
 
-/**
- * Add item to wishlist.
- * POST /wishlist/items/
- */
+
 export async function apiAddWishlistItem(productId) {
   const res = await fetch(`${API_BASE}/wishlist/items/`, {
     method: 'POST',
@@ -700,10 +650,7 @@ export async function apiAddWishlistItem(productId) {
   return data
 }
 
-/**
- * Remove item from wishlist by productId.
- * DELETE /wishlist/items/<productId>/
- */
+
 export async function apiRemoveWishlistItem(productId) {
   const res = await fetch(`${API_BASE}/wishlist/items/${productId}/`, {
     method: 'DELETE',
@@ -715,10 +662,7 @@ export async function apiRemoveWishlistItem(productId) {
   return true
 }
 
-/**
- * Move item from wishlist to cart.
- * POST /wishlist/move-to-cart/
- */
+
 export async function apiMoveToCart(productId) {
   const res = await fetch(`${API_BASE}/wishlist/move-to-cart/`, {
     method: 'POST',
@@ -737,7 +681,7 @@ export async function apiMoveToCart(productId) {
   return data
 }
 
-/* ── Order APIs ────────────────────────────────────── */
+
 
 export function normalizeOrder(order) {
   if (!order) return null
@@ -786,7 +730,7 @@ export function normalizeOrder(order) {
   }
 }
 
-/* ── Local Order Storage Helper ────────────────────── */
+
 
 export function saveLocalOrder(order) {
   if (!order) return
@@ -809,10 +753,7 @@ export function getLocalOrders() {
   }
 }
 
-/**
- * Create a new order from current cart.
- * POST /orders/
- */
+
 export async function apiCreateOrder() {
   let createdOrder = null
   try {
@@ -850,10 +791,7 @@ export async function apiCreateOrder() {
   return createdOrder
 }
 
-/**
- * Get user order history.
- * GET /orders/history/
- */
+
 export async function apiGetOrdersHistory() {
   let backendOrders = []
   try {
@@ -877,11 +815,11 @@ export async function apiGetOrdersHistory() {
     .filter(Boolean)
 
   const mergedMap = new Map()
-  // Local orders first
+  
   localOrders.forEach((o) => {
     if (o && o.id) mergedMap.set(o.id, o)
   })
-  // Merge backend orders
+  
   backendOrders.forEach((o) => {
     if (o && o.id) mergedMap.set(o.id, o)
   })
@@ -890,10 +828,7 @@ export async function apiGetOrdersHistory() {
 }
 
 
-/**
- * Get single order details.
- * GET /orders/<orderId>/
- */
+
 export async function apiGetOrderDetail(orderId) {
   try {
     const res = await fetch(`${API_BASE}/orders/${orderId}/`, {
@@ -918,10 +853,7 @@ export async function apiGetOrderDetail(orderId) {
   })
 }
 
-/**
- * Cancel order.
- * POST /orders/<orderId>/cancel/
- */
+
 export async function apiCancelOrder(orderId, reason = '') {
   try {
     const res = await fetch(`${API_BASE}/orders/${orderId}/cancel/`, {
@@ -937,7 +869,7 @@ export async function apiCancelOrder(orderId, reason = '') {
     const data = isJson ? await res.json() : null
 
     if (res.ok) {
-      // Update local storage status
+      
       const existing = getLocalOrders()
       const updated = existing.map((o) =>
         o.id === orderId ? { ...o, status: 'CANCELLED', type: 'cancelled' } : o

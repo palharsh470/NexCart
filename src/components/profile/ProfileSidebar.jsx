@@ -49,7 +49,7 @@ export function ProfileSidebar({ activeTab = 'profile', onTabChange, user }) {
 
   return (
     <aside className={styles.sidebarCard}>
-      {/* User Header */}
+      {}
       <div className={styles.userHeader}>
         {avatarUrl ? (
           <img src={avatarUrl} alt={displayName} className={styles.avatar} />
@@ -64,7 +64,7 @@ export function ProfileSidebar({ activeTab = 'profile', onTabChange, user }) {
         </div>
       </div>
 
-      {/* Nav Menu */}
+      {}
       <nav className={styles.navMenu}>
         {navItems.map((item) => (
           <button

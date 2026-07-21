@@ -20,7 +20,7 @@ export function FilterSidebar({
 
   return (
     <aside className={styles.sidebar}>
-      {/* Category */}
+      {}
       <div className={styles.filterSection}>
         <h3 className={styles.filterTitle}>Category</h3>
         <div className={styles.checkboxGroup}>
@@ -60,7 +60,7 @@ export function FilterSidebar({
         </div>
       </div>
 
-      {/* Price Range */}
+      {}
       <div className={styles.filterSection}>
         <h3 className={styles.filterTitle}>Price Range</h3>
         <div className={styles.sliderContainer}>
@@ -83,7 +83,7 @@ export function FilterSidebar({
         </div>
       </div>
 
-      {/* Rating */}
+      {}
       <div className={styles.filterSection}>
         <h3 className={styles.filterTitle}>Rating</h3>
         <div className={styles.radioGroup}>

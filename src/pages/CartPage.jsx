@@ -72,7 +72,7 @@ export default function CartPage() {
     if (!item) return
     const newQty = Math.max(1, item.quantity + delta)
 
-    // Optimistic UI update
+    
     setCartItems((prev) =>
       prev.map((i) => (i.id === id ? { ...i, quantity: newQty } : i))
     )
@@ -81,12 +81,12 @@ export default function CartPage() {
       await apiUpdateCartItem(id, newQty)
     } catch (err) {
       console.error('Failed to update cart item quantity:', err)
-      loadCart() // Revert on failure
+      loadCart() 
     }
   }
 
   const deleteItem = async (id) => {
-    // Optimistic UI update
+    
     setCartItems((prev) => prev.filter((item) => item.id !== id))
     try {
       await apiRemoveCartItem(id)
@@ -146,7 +146,7 @@ export default function CartPage() {
         )}
 
         <div className={styles.contentLayout}>
-          {/* Left Column (Items List) */}
+          {}
           <div className={styles.itemsColumn}>
             {loading ? (
               <div className={styles.emptyCartCard}>
@@ -193,7 +193,7 @@ export default function CartPage() {
             )}
           </div>
 
-          {/* Right Column (Order Summary Card) */}
+          {}
           <aside className={styles.summaryColumn}>
             <OrderSummary
               subtotal={subtotal}

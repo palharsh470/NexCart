@@ -5,7 +5,6 @@ import { IconSearch, IconHeart, IconCart, IconNexLogo } from './Icons'
 import { useAuth } from '../AuthContext'
 import { apiGetCart, apiGetWishlist, apiSearchProducts } from '../api'
 
-/* ── Navbar ─────────────────────────────────── */
 export function Navbar({ activeAction, activeLink, cartCount: propCartCount, wishlistCount: propWishlistCount }) {
   const { user, isAuthenticated } = useAuth()
   const location = useLocation()
@@ -15,7 +14,7 @@ export function Navbar({ activeAction, activeLink, cartCount: propCartCount, wis
   const [liveCartCount, setLiveCartCount] = useState(0)
   const [liveWishlistCount, setLiveWishlistCount] = useState(0)
 
-  // Search Bar State
+  
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState([])
   const [searchLoading, setSearchLoading] = useState(false)
@@ -94,7 +93,7 @@ export function Navbar({ activeAction, activeLink, cartCount: propCartCount, wis
   const isCategoriesActive = activeLink ? activeLink === 'Categories' : (path === '/' || path === '/categories')
   const isShopActive = activeLink ? activeLink === 'Shop' : (path === '/shop')
 
-  // Build display name from user data
+  
   const displayName = user?.profile?.full_name || user?.username || 'User'
   const avatarUrl = user?.profile?.avatar || null
 
@@ -206,7 +205,6 @@ export function Navbar({ activeAction, activeLink, cartCount: propCartCount, wis
   )
 }
 
-/* ── Footer ─────────────────────────────────── */
 export function Footer() {
   return (
     <footer className={styles.footer}>

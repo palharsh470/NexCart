@@ -52,7 +52,6 @@ export default function ProductDetailPage() {
         if (isMounted) setLoading(false)
       })
 
-    // Check if item is already in user's cart
     apiGetCart()
       .then((cartItems) => {
         if (!isMounted || !Array.isArray(cartItems)) return
@@ -61,23 +60,23 @@ export default function ProductDetailPage() {
         )
         if (exists) setIsInCart(true)
       })
-      .catch(() => {})
+      .catch(() => { })
 
-    // Fetch related products
+
     apiGetRelatedProducts(id)
       .then((relData) => {
         if (!isMounted) return
         if (relData && relData.length > 0) {
           setRelatedProducts(relData)
         } else {
-          // Fallback to featured products if related products array is empty
+
           apiGetFeaturedProducts()
             .then((featData) => {
               if (isMounted) {
                 setRelatedProducts(featData.filter((item) => item.id !== Number(id)))
               }
             })
-            .catch(() => {})
+            .catch(() => { })
         }
       })
       .catch(() => {
@@ -88,7 +87,7 @@ export default function ProductDetailPage() {
               setRelatedProducts(featData.filter((item) => item.id !== Number(id)))
             }
           })
-          .catch(() => {})
+          .catch(() => { })
       })
 
     return () => {
@@ -194,7 +193,7 @@ export default function ProductDetailPage() {
           ]}
         />
 
-        {/* Top Product View */}
+        { }
         <section className={styles.productTopSection}>
           <div className={styles.imagesArea}>
             <div className={styles.mainImageWrap}>
@@ -304,7 +303,7 @@ export default function ProductDetailPage() {
           </div>
         </section>
 
-        {/* Tabs Section */}
+        { }
         <section className={styles.tabsSection}>
           <div className={styles.tabHeaders}>
             <button
@@ -392,7 +391,7 @@ export default function ProductDetailPage() {
           </div>
         </section>
 
-        {/* Related Products */}
+        { }
         {relatedProducts.length > 0 && (
           <section className={styles.relatedSection}>
             <div className={styles.relatedHeader}>

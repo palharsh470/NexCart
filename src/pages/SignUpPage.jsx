@@ -34,9 +34,9 @@ export default function SignUpPage() {
     const e = {}
     if (!form.username.trim()) e.username = 'Required'
     if (!form.fullName.trim()) e.fullName = 'Required'
-    if (!form.email.trim())    e.email    = 'Required'
+    if (!form.email.trim()) e.email = 'Required'
     else if (!/\S+@\S+\.\S+/.test(form.email)) e.email = 'Enter a valid email'
-    if (!form.password)        e.password  = 'Required'
+    if (!form.password) e.password = 'Required'
     else if (form.password.length < 8) e.password = 'Min. 8 characters'
     if (form.confirm !== form.password) e.confirm = 'Passwords do not match'
     return e
@@ -62,7 +62,7 @@ export default function SignUpPage() {
     } catch (err) {
       if (err.fieldErrors) {
         const mapped = {}
-        // Map Django field names to form field names
+
         const fieldMap = {
           username: 'username',
           email: 'email',

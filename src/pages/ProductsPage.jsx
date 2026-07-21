@@ -81,7 +81,7 @@ export default function ProductsPage() {
     }
   }
 
-  // Filter products by price and search query
+  
   const filteredProducts = products.filter((p) => {
     if (p.price > priceRange) return false
     if (searchQuery.trim()) {
@@ -94,7 +94,7 @@ export default function ProductsPage() {
     return true
   })
 
-  // Sort products
+  
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortBy === 'price-low') return a.price - b.price
     if (sortBy === 'price-high') return b.price - a.price
